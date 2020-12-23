@@ -4,7 +4,7 @@ from threading import Thread
 from queue import Queue
 from optparse import OptionParser
 from urllib.parse import urlparse
-import requests,sys,os,platform
+import requests,sys,os,platform,re
 
 colors = True  # Output should be colored
 machine = sys.platform  # Detecting the os of current system
@@ -45,7 +45,20 @@ def post_data(params):
             postData[p[0]] = p[1]
         return postData
     return {}
-
+def extractHeaders(headers):
+    headers = headers.replace('\\n', '\n')
+    sorted_headers = {}
+    matches = re.findall(r'(.*):\s(.*)', headers)
+    for match in matches:
+        header = match[0]
+        value = match[1]
+        try:
+            if value[-1] == ',':
+                value = value[:-1]
+            sorted_headers[header] = value
+        except IndexError:
+            pass
+    return sorted_headers
 print('''
 {red}{bold}
 \t _            ___      __ 
@@ -65,6 +78,7 @@ optp.add_option('--timeout',dest='timeout',type='int')
 optp.add_option('-r','--allow_redirects',dest='redirect',action='store_true')
 optp.add_option('--threads',dest='threads',type='int')
 optp.add_option('-w',dest='wordlist')
+optp.add_option('-f',dest='hf')
 opts, args = optp.parse_args()
 helper = f"""
 Options:
@@ -73,6 +87,7 @@ Options:
 	-t         | your target
 	-s         | your host
 	-c         | add cookies
+	-f         | headers file
 	-r         | allow redirects
 	--threads  | add threads
 	--timeout  | add timeout
@@ -106,6 +121,15 @@ if opts.server:
 else:
 	print(helper)
 	sys.exit()
+if opts.hf:
+	try:
+		hf = open(opts.hf,'r')
+		HF = extractHeaders(hf.read())
+	except Exception as e:
+		print(f'{bad} Error: {e}')
+		sys.exit()
+else:
+	HF = None
 if opts.cookies:
 	c = post_data(opts.cookies)
 else:
@@ -119,19 +143,23 @@ if opts.timeout:
 	timeout = opts.timeout
 else:
 	timeout = None
-def req(link,cookie=None,redirect=None,timeout=None):
+def req(link,cookie=None,redirect=None,header={},timeout=None):
 	try:
-		r = requests.get(link,verify=False,allow_redirects=redirect,timeout=timeout,cookies=cookie)
-		o = urlparse(link)
-		r2 = requests.post(link.split('?')[0],verify=False,allow_redirects=redirect,timeout=timeout,cookies=cookie,data=post_data(o.query))
-	finally:
-		pass
+		if header:
+			r = requests.get(link,verify=False,headers=header,allow_redirects=redirect,timeout=timeout,cookies=cookie)
+			o = urlparse(link)
+			r2 = requests.post(link.split('?')[0],verify=False,headers=header,allow_redirects=redirect,timeout=timeout,cookies=cookie,data=post_data(o.query))
+		else:
+			r = requests.get(link,verify=False,allow_redirects=redirect,timeout=timeout,cookies=cookie)
+			o = urlparse(link)
+			r2 = requests.post(link.split('?')[0],verify=False,allow_redirects=redirect,timeout=timeout,cookies=cookie,data=post_data(o.query))			
+	except Exception as e:
+		print(f'{bad} Error: {e}')
 q = Queue()
 def threader():
 	while True:
 		item = q.get()
-		print(item)
-		req(item,redirect=redirect,timeout=timeout,cookie=c)
+		req(item,redirect=redirect,timeout=timeout,header=HF,cookie=c)
 		q.task_done()
 
 if __name__ == '__main__':
