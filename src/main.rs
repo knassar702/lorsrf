@@ -16,7 +16,6 @@ fn start(url : String ) -> () {
         for theurl in newurl {
             match requester.get(theurl) {
                 Ok(requester) => {
-                    println!("{}", requester.status()); 
                     requester
                 },
                 Err(e) => {
