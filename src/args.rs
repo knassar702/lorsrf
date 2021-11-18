@@ -28,23 +28,20 @@ pub fn args() -> ArgMatches<'static> {
                                  .long("call"))
 
                               .arg(Arg::with_name("proxy")
-                                   .help("Send all requests throw custom Proxy")
+                                   .help("SendProxy")
                                    .takes_value(true)
                                    .default_value("")
                                    .short("p")
                                    .long("proxy"))
-
                               .arg(Arg::with_name("wordlist")
                                    .help("Your Parameters Wordlist")
-                                   .required(true)
-                                   .takes_value(true)
+                                   .long("wordlist")
                                    .short("w")
-                                   .long("wordlist"))     
-                                   
+                                   .required(true)
+                                   .takes_value(true))
                               .arg(Arg::with_name("threads")
-                                   .help("Number of threads")
+                                   .help("Your Threads")
                                    .long("threads")
-                                   .takes_value(true)
                                    .default_value("10")
                               )
                           .get_matches();
