@@ -22,6 +22,12 @@ Lorsrf - SSRF Parameter bruteforce tool
 $ lorsrf --wordlist parameters.txt --call (YOUR BURP COLLABORATOR or interactsh.com host ) --urls your_targets_list.txt
 ```
 
+#### example
+
+```bash
+$ waybackurls testphp.vulnweb.com > targets.txt
+$ lorsrf --wordlist parameters.txt --call c64fsyz2vtc0000341c0gdn8h9oyyyyyb.interactsh.com --urls target.txt
+```
 
 more options
 
