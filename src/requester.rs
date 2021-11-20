@@ -3,15 +3,19 @@ use isahc::{HttpClient, config::{
         VersionNegotiation,
         SslOption}, prelude::*};
 use url::{Url};
+use std::collections::HashMap;
+use regex::Regex;
 use std::{
     fs::File,
     time::Duration,
     io::{BufRead,BufReader},
     path::Path,
 };
+
 pub struct Requester {
     pub timeout: u64,
     pub proxy: String,
+    pub headers: HashMap<String,String>,
 }
 
 impl Requester {
@@ -27,11 +31,23 @@ impl Requester {
             client = client.proxy(Some(self.proxy.parse().unwrap()));
         }
 
+        if self.headers.len() > 0 {
+            client = client.default_headers(self.headers.clone());
+        } 
+
         return client.build().unwrap()
     }
 
 }
 
+pub fn extractheaders(headers: &str ) -> HashMap<String, String> {
+    let headers_finder = Regex::new(r"(.*):\s(.*)").unwrap();
+    let mut headers_found = HashMap::new();
+    for cap in headers_finder.captures_iter(str::replace(headers, "\\n", "\n").as_str()) {
+        headers_found.insert(cap[1].to_string(),cap[2].to_string());
+    };
+    return headers_found;
+}
 pub fn add_parameters(url : &str, payload: &str , wordlist: &str ) -> Vec<String> {
     match Path::new(wordlist).exists() {
         true => {
