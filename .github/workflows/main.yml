@@ -1,0 +1,373 @@
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    name: release ${{ matrix.target }}  (with non-required env)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+              archive: zip
+          - target: aarch64-apple-ios
+              archive: zip
+          - target: aarch64-apple-ios-macabi
+              archive: zip
+          - target: aarch64-apple-ios-sim
+              archive: zip
+          - target: aarch64-apple-tvos
+              archive: zip
+          - target: aarch64-fuchsia
+              archive: zip
+          - target: aarch64-linux-android
+              archive: zip
+          - target: aarch64-pc-windows-msvc
+              archive: zip
+          - target: aarch64-unknown-freebsd
+              archive: zip
+          - target: aarch64-unknown-hermit
+              archive: zip
+          - target: aarch64-unknown-linux-gnu
+              archive: zip
+          - target: aarch64-unknown-linux-gnu_ilp32
+              archive: zip
+          - target: aarch64-unknown-linux-musl
+              archive: zip
+          - target: aarch64-unknown-netbsd
+              archive: zip
+          - target: aarch64-unknown-none
+              archive: zip
+          - target: aarch64-unknown-none-softfloat
+              archive: zip
+          - target: aarch64-unknown-openbsd
+              archive: zip
+          - target: aarch64-unknown-redox
+              archive: zip
+          - target: aarch64-unknown-uefi
+              archive: zip
+          - target: aarch64-uwp-windows-msvc
+              archive: zip
+          - target: aarch64-wrs-vxworks
+              archive: zip
+          - target: aarch64_be-unknown-linux-gnu
+              archive: zip
+          - target: aarch64_be-unknown-linux-gnu_ilp32
+              archive: zip
+          - target: arm-linux-androideabi
+              archive: zip
+          - target: arm-unknown-linux-gnueabi
+              archive: zip
+          - target: arm-unknown-linux-gnueabihf
+              archive: zip
+          - target: arm-unknown-linux-musleabi
+              archive: zip
+          - target: arm-unknown-linux-musleabihf
+              archive: zip
+          - target: armebv7r-none-eabi
+              archive: zip
+          - target: armebv7r-none-eabihf
+              archive: zip
+          - target: armv4t-unknown-linux-gnueabi
+              archive: zip
+          - target: armv5te-unknown-linux-gnueabi
+              archive: zip
+          - target: armv5te-unknown-linux-musleabi
+              archive: zip
+          - target: armv5te-unknown-linux-uclibceabi
+              archive: zip
+          - target: armv6-unknown-freebsd
+              archive: zip
+          - target: armv6-unknown-netbsd-eabihf
+              archive: zip
+          - target: armv7-apple-ios
+              archive: zip
+          - target: armv7-linux-androideabi
+              archive: zip
+          - target: armv7-unknown-freebsd
+              archive: zip
+          - target: armv7-unknown-linux-gnueabi
+              archive: zip
+          - target: armv7-unknown-linux-gnueabihf
+              archive: zip
+          - target: armv7-unknown-linux-musleabi
+              archive: zip
+          - target: armv7-unknown-linux-musleabihf
+              archive: zip
+          - target: armv7-unknown-netbsd-eabihf
+              archive: zip
+          - target: armv7-wrs-vxworks-eabihf
+              archive: zip
+          - target: armv7a-none-eabi
+              archive: zip
+          - target: armv7a-none-eabihf
+              archive: zip
+          - target: armv7r-none-eabi
+              archive: zip
+          - target: armv7r-none-eabihf
+              archive: zip
+          - target: armv7s-apple-ios
+              archive: zip
+          - target: asmjs-unknown-emscripten
+              archive: zip
+          - target: avr-unknown-gnu-atmega328
+              archive: zip
+          - target: bpfeb-unknown-none
+              archive: zip
+          - target: bpfel-unknown-none
+              archive: zip
+          - target: hexagon-unknown-linux-musl
+              archive: zip
+          - target: i386-apple-ios
+              archive: zip
+          - target: i586-pc-windows-msvc
+              archive: zip
+          - target: i586-unknown-linux-gnu
+              archive: zip
+          - target: i586-unknown-linux-musl
+              archive: zip
+          - target: i686-apple-darwin
+              archive: zip
+          - target: i686-linux-android
+              archive: zip
+          - target: i686-pc-windows-gnu
+              archive: zip
+          - target: i686-pc-windows-msvc
+              archive: zip
+          - target: i686-unknown-freebsd
+              archive: zip
+          - target: i686-unknown-haiku
+              archive: zip
+          - target: i686-unknown-linux-gnu
+              archive: zip
+          - target: i686-unknown-linux-musl
+              archive: zip
+          - target: i686-unknown-netbsd
+              archive: zip
+          - target: i686-unknown-openbsd
+              archive: zip
+          - target: i686-unknown-uefi
+              archive: zip
+          - target: i686-uwp-windows-gnu
+              archive: zip
+          - target: i686-uwp-windows-msvc
+              archive: zip
+          - target: i686-wrs-vxworks
+              archive: zip
+          - target: mips-unknown-linux-gnu
+              archive: zip
+          - target: mips-unknown-linux-musl
+              archive: zip
+          - target: mips-unknown-linux-uclibc
+              archive: zip
+          - target: mips64-unknown-linux-gnuabi64
+              archive: zip
+          - target: mips64-unknown-linux-muslabi64
+              archive: zip
+          - target: mips64el-unknown-linux-gnuabi64
+              archive: zip
+          - target: mips64el-unknown-linux-muslabi64
+              archive: zip
+          - target: mipsel-sony-psp
+              archive: zip
+          - target: mipsel-unknown-linux-gnu
+              archive: zip
+          - target: mipsel-unknown-linux-musl
+              archive: zip
+          - target: mipsel-unknown-linux-uclibc
+              archive: zip
+          - target: mipsel-unknown-none
+              archive: zip
+          - target: mipsisa32r6-unknown-linux-gnu
+              archive: zip
+          - target: mipsisa32r6el-unknown-linux-gnu
+              archive: zip
+          - target: mipsisa64r6-unknown-linux-gnuabi64
+              archive: zip
+          - target: mipsisa64r6el-unknown-linux-gnuabi64
+              archive: zip
+          - target: msp430-none-elf
+              archive: zip
+          - target: nvptx64-nvidia-cuda
+              archive: zip
+          - target: powerpc-unknown-freebsd
+              archive: zip
+          - target: powerpc-unknown-linux-gnu
+              archive: zip
+          - target: powerpc-unknown-linux-gnuspe
+              archive: zip
+          - target: powerpc-unknown-linux-musl
+              archive: zip
+          - target: powerpc-unknown-netbsd
+              archive: zip
+          - target: powerpc-unknown-openbsd
+              archive: zip
+          - target: powerpc-wrs-vxworks
+              archive: zip
+          - target: powerpc-wrs-vxworks-spe
+              archive: zip
+          - target: powerpc64-unknown-freebsd
+              archive: zip
+          - target: powerpc64-unknown-linux-gnu
+              archive: zip
+          - target: powerpc64-unknown-linux-musl
+              archive: zip
+          - target: powerpc64-wrs-vxworks
+              archive: zip
+          - target: powerpc64le-unknown-freebsd
+              archive: zip
+          - target: powerpc64le-unknown-linux-gnu
+              archive: zip
+          - target: powerpc64le-unknown-linux-musl
+              archive: zip
+          - target: riscv32gc-unknown-linux-gnu
+              archive: zip
+          - target: riscv32gc-unknown-linux-musl
+              archive: zip
+          - target: riscv32i-unknown-none-elf
+              archive: zip
+          - target: riscv32imac-unknown-none-elf
+              archive: zip
+          - target: riscv32imc-esp-espidf
+              archive: zip
+          - target: riscv32imc-unknown-none-elf
+              archive: zip
+          - target: riscv64gc-unknown-linux-gnu
+              archive: zip
+          - target: riscv64gc-unknown-linux-musl
+              archive: zip
+          - target: riscv64gc-unknown-none-elf
+              archive: zip
+          - target: riscv64imac-unknown-none-elf
+              archive: zip
+          - target: s390x-unknown-linux-gnu
+              archive: zip
+          - target: s390x-unknown-linux-musl
+              archive: zip
+          - target: sparc-unknown-linux-gnu
+              archive: zip
+          - target: sparc64-unknown-linux-gnu
+              archive: zip
+          - target: sparc64-unknown-netbsd
+              archive: zip
+          - target: sparc64-unknown-openbsd
+              archive: zip
+          - target: sparcv9-sun-solaris
+              archive: zip
+          - target: thumbv4t-none-eabi
+              archive: zip
+          - target: thumbv6m-none-eabi
+              archive: zip
+          - target: thumbv7a-pc-windows-msvc
+              archive: zip
+          - target: thumbv7a-uwp-windows-msvc
+              archive: zip
+          - target: thumbv7em-none-eabi
+              archive: zip
+          - target: thumbv7em-none-eabihf
+              archive: zip
+          - target: thumbv7m-none-eabi
+              archive: zip
+          - target: thumbv7neon-linux-androideabi
+              archive: zip
+          - target: thumbv7neon-unknown-linux-gnueabihf
+              archive: zip
+          - target: thumbv7neon-unknown-linux-musleabihf
+              archive: zip
+          - target: thumbv8m.base-none-eabi
+              archive: zip
+          - target: thumbv8m.main-none-eabi
+              archive: zip
+          - target: thumbv8m.main-none-eabihf
+              archive: zip
+          - target: wasm32-unknown-emscripten
+              archive: zip
+          - target: wasm32-unknown-unknown
+              archive: zip
+          - target: wasm32-wasi
+              archive: zip
+          - target: wasm64-unknown-unknown
+              archive: zip
+          - target: x86_64-apple-darwin
+              archive: zip
+          - target: x86_64-apple-ios
+              archive: zip
+          - target: x86_64-apple-ios-macabi
+              archive: zip
+          - target: x86_64-apple-tvos
+              archive: zip
+          - target: x86_64-fortanix-unknown-sgx
+              archive: zip
+          - target: x86_64-fuchsia
+              archive: zip
+          - target: x86_64-linux-android
+              archive: zip
+          - target: x86_64-pc-solaris
+              archive: zip
+          - target: x86_64-pc-windows-gnu
+              archive: zip
+          - target: x86_64-pc-windows-msvc
+              archive: zip
+          - target: x86_64-sun-solaris
+              archive: zip
+          - target: x86_64-unknown-dragonfly
+              archive: zip
+          - target: x86_64-unknown-freebsd
+              archive: zip
+          - target: x86_64-unknown-haiku
+              archive: zip
+          - target: x86_64-unknown-hermit
+              archive: zip
+          - target: x86_64-unknown-illumos
+              archive: zip
+          - target: x86_64-unknown-l4re-uclibc
+              archive: zip
+          - target: x86_64-unknown-linux-gnu
+              archive: zip
+          - target: x86_64-unknown-linux-gnux32
+              archive: zip
+          - target: x86_64-unknown-linux-musl
+              archive: zip
+          - target: x86_64-unknown-netbsd
+              archive: zip
+          - target: x86_64-unknown-none-hermitkernel
+              archive: zip
+          - target: x86_64-unknown-none-linuxkernel
+              archive: zip
+          - target: x86_64-unknown-openbsd
+              archive: zip
+          - target: x86_64-unknown-redox
+              archive: zip
+          - target: x86_64-unknown-uefi
+              archive: zip
+          - target: x86_64-uwp-windows-gnu
+              archive: zip
+          - target: x86_64-uwp-windows-msvc
+              archive: zip
+          - target: x86_64-wrs-vxworks
+              archive: zip    
+    steps:
+      - uses: actions/checkout@master
+      - name: Compile and release
+        uses: rust-build/rust-build.action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUSTTARGET: ${{ matrix.target }}
+          SRC_DIR: "."
+          ARCHIVE_TYPES: ${{ matrix.archive }}
+  release_without_not_required:
+    name: release ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        target: [x86_64-unknown-linux-musl]
+    steps:
+      - uses: actions/checkout@master
+      - name: Compile and release
+        uses: rust-build/rust-build.action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          RUSTTARGET: ${{ matrix.target }}
