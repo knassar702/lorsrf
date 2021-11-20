@@ -30,7 +30,6 @@ fn start(url : String ) -> () {
 
 fn main() {
     let the_args = args();
-    extractheaders("TT: fff\nCCV: yyy");
     let mut pool = Pool::new(the_args.value_of("threads").unwrap().parse().unwrap());
     let urls = File::open(the_args.value_of("targets").unwrap().to_string()).expect("file not found!");
     let reader = BufReader::new(urls);
