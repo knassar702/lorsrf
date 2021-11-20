@@ -8,7 +8,6 @@ use std::{fs::File, io::{BufRead,BufReader} };
 
 fn start(url : String ) -> () {
         let the_args = args();
-        println!("{:?}",the_args.value_of("headers").unwrap());
         let requester = Requester{
             timeout:the_args.value_of("timeout").unwrap().parse().unwrap(),
             proxy:the_args.value_of("proxy").unwrap().to_string(),
