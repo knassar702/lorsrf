@@ -9,7 +9,6 @@ use std::{
     fs::File,
     time::Duration,
     io::{BufRead,BufReader},
-    path::Path,
 };
 
 pub struct Requester {
@@ -48,26 +47,15 @@ pub fn extractheaders(headers: &str ) -> HashMap<String, String> {
     };
     return headers_found;
 }
-pub fn add_parameters(url : &str, payload: &str , wordlist: &str ) -> Vec<String> {
-    match Path::new(wordlist).exists() {
-        true => {
-            let test = File::open(wordlist.to_string()).expect("file not found!");
-            let reader = BufReader::new(test);
-
-            let mut scheme = vec![];
-            let mut urls = Vec::new();
-            for theurl in reader.lines() {
-                scheme.push((theurl.unwrap(), payload.to_string()));
-                if scheme.len() == 10 {
-                    urls.push(Url::parse_with_params(url,&scheme).unwrap().to_string());
-                    scheme.clear();
-                }
-            }
-            return urls
-        },
-        false => {
-            println!("[ERR] File not found : {}",wordlist);
-            return vec![];
+pub fn add_parameters(url : &str, payload: &str , wordlist: BufReader<File> ) -> Vec<String> {
+    let mut scheme = vec![];
+    let mut urls = Vec::new();
+    for theurl in wordlist.lines() {
+        scheme.push((theurl.unwrap(), payload.to_string()));
+        if scheme.len() == 10 {
+            urls.push(Url::parse_with_params(url,&scheme).unwrap().to_string());
+            scheme.clear();
         }
-    };
+    }
+    return urls
 }

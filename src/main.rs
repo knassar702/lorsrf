@@ -6,7 +6,7 @@ use scoped_threadpool::Pool;
 use std::{fs::File, io::{BufRead,BufReader} };
 
 
-fn start(url : String ) -> () {
+fn start(url : String) -> () {
     // Parse all command line arguments
         let the_args = args();
         // build http client options
@@ -16,7 +16,7 @@ fn start(url : String ) -> () {
             headers:extractheaders(the_args.value_of("headers").unwrap()),
             }.build();
         // inject the call option to urls parameters
-        let newurl = add_parameters(url.as_str(),the_args.value_of("host").unwrap(),the_args.value_of("wordlist").unwrap());
+        let newurl = add_parameters(url.as_str(),the_args.value_of("host").unwrap(),BufReader::new(File::open(the_args.value_of("wordlist").unwrap().to_string()).unwrap()));
         for theurl in newurl {
             // send the request with GET method
             match requester.get(theurl) {
@@ -33,13 +33,14 @@ fn start(url : String ) -> () {
 
 
 fn main() {
+
     let the_args = args();
     let mut pool = Pool::new(the_args.value_of("threads").unwrap().parse().unwrap());
     let urls = File::open(the_args.value_of("targets").unwrap().to_string()).expect("file not found!");
-    let reader = BufReader::new(urls);
+    let mut _reader = BufReader::new(urls);
     pool.scoped(|scope|{
-            for url in reader.lines() {
-                scope.execute(move ||start(url.unwrap()))
+            for url in _reader.lines() {
+                scope.execute(move ||start(url.unwrap()));
             }
         });
 
