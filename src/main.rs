@@ -7,14 +7,18 @@ use std::{fs::File, io::{BufRead,BufReader} };
 
 
 fn start(url : String ) -> () {
+    // Parse all command line arguments
         let the_args = args();
+        // build http client options
         let requester = Requester{
             timeout:the_args.value_of("timeout").unwrap().parse().unwrap(),
             proxy:the_args.value_of("proxy").unwrap().to_string(),
             headers:extractheaders(the_args.value_of("headers").unwrap()),
             }.build();
+        // inject the call option to urls parameters
         let newurl = add_parameters(url.as_str(),the_args.value_of("host").unwrap(),the_args.value_of("wordlist").unwrap());
         for theurl in newurl {
+            // send the request with GET method
             match requester.get(theurl) {
                 Ok(requester) => {
                     requester
