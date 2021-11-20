@@ -42,8 +42,15 @@ pub fn args() -> ArgMatches<'static> {
                               .arg(Arg::with_name("threads")
                                    .help("Your Threads")
                                    .long("threads")
-                                   .default_value("10")
-                              )
+                                   .default_value("10"))
+                              
+                              .arg(Arg::with_name("headers")
+                                   .help("Your Headers")
+                                   .long("headers") 
+                                   .short("H")
+                                   .takes_value(true)
+                                   .default_value(""))
+
                           .get_matches();
 
 }
