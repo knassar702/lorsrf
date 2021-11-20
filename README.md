@@ -42,3 +42,7 @@ OPTIONS:
     -t, --timeout <timeout>      Set the Timeout of the requests [default: 10]
     -w, --wordlist <wordlist>    Your Parameters Wordlist
 ```
+
+
+### TODO-LIST
+* https://github.com/knassar702/lorsrf/projects/1
