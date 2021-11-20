@@ -2,7 +2,7 @@ extern crate clap;
 use clap::{App, Arg, ArgMatches};
 
 pub fn args() -> ArgMatches<'static> {
-     // Args options
+     // Create the CLI app
     return App::new("Lorsrf")
                           .version("2.0")
                           .author("Khaled Nassar <knassar702@gmail.com>")
