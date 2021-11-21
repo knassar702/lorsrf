@@ -7,11 +7,7 @@ Lorsrf - SSRF Parameter bruteforce tool
 
 ### install
 ```bash
->>> git clone https://github.com/knassar702/lorsrf
->>> cd lorsrf
->>> cargo build --release
->>> sudo ln -s target/release/lorsrf /usr/bin/lorsrf
->>> lorsrf --help
+>>> cargo install --git https://github.com/knassar702/lorsrf
  
 ```
 
