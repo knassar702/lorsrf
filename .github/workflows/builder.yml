@@ -10,10 +10,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: x86_64-pc-windows-gnu
+          - target: x86_64-unknown-freebsd
             archive: zip
-          - target: x86_64-linux-musl
-            archive: tar.gz
+          - target: x86_64-unknown-linux-gnu
+            archive: zip
+          - target: x86_64-unknown-linux-gnux32
+            archive: zip
+          - target: i686-unknown-freebsd
+            archive: zip
+          - target: x86_64-unknown-openbsd
+            archive: zip
+          - target: i686-unknown-openbsd
+            archive: zip
     steps:
       - uses: actions/checkout@master
       - name: Compile and release
