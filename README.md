@@ -7,6 +7,7 @@ Lorsrf - SSRF Parameter bruteforce tool
 
 ### install
 ```bash
+>>> apt install gcc pkg-config libssl-dev
 >>> cargo install --git https://github.com/knassar702/lorsrf
  
 ```
