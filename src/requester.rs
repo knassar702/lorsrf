@@ -2,7 +2,7 @@ use isahc::{HttpClient, config::{
         RedirectPolicy, 
         VersionNegotiation,
         SslOption}, prelude::*};
-use url::{Url};
+use url::Url;
 use std::collections::HashMap;
 use regex::Regex;
 use std::{
@@ -47,15 +47,26 @@ pub fn extractheaders(headers: &str ) -> HashMap<String, String> {
     };
     return headers_found;
 }
-pub fn add_parameters(url : &str, payload: &str , wordlist: BufReader<File> ) -> Vec<String> {
+
+
+pub fn convert_vec(wordlist: BufReader<File> ) -> Vec<String> {
+    let mut scheme = Vec::new();
+    for data in wordlist.lines() {
+        scheme.push(data.unwrap().to_string());
+    }
+    return scheme;
+
+}
+pub fn add_parameters(url : String, payload: &str , wordlist: Vec<String>) -> Vec<String> {
     let mut scheme = vec![];
     let mut urls = Vec::new();
-    for theurl in wordlist.lines() {
-        scheme.push((theurl.unwrap(), payload.to_string()));
+    for theurl in wordlist {
+        scheme.push((theurl, payload.to_string()));
         if scheme.len() == 10 {
-            urls.push(Url::parse_with_params(url,&scheme).unwrap().to_string());
+            urls.push(Url::parse_with_params(url.as_str(),&scheme).unwrap().to_string());
             scheme.clear();
         }
     }
     return urls
 }
+

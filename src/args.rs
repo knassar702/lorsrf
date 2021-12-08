@@ -52,6 +52,11 @@ pub fn args() -> ArgMatches<'static> {
                                    .takes_value(true)
                                    .default_value(""))
 
+                              .arg(Arg::with_name("json")
+                                   .help("Send JSON parameters")
+                                   .long("json")
+                                   .short("j")
+                                   )
                           .get_matches();
 
 }

@@ -1,47 +1,45 @@
 mod args;
 mod requester;
-use requester::*;
-use args::args;
+use crate::requester::*;
+use crate::args::args;
+use indicatif::ProgressBar;
 use scoped_threadpool::Pool;
-use std::{fs::File, io::{BufRead,BufReader} };
-
-
-fn start(url : String) -> () {
-    // Parse all command line arguments
-        let the_args = args();
-        // build http client options
-        let requester = Requester{
-            timeout:the_args.value_of("timeout").unwrap().parse().unwrap(),
-            proxy:the_args.value_of("proxy").unwrap().to_string(),
-            headers:extractheaders(the_args.value_of("headers").unwrap()),
-            }.build();
-        // inject the call option to urls parameters
-        let newurl = add_parameters(url.as_str(),the_args.value_of("host").unwrap(),BufReader::new(File::open(the_args.value_of("wordlist").unwrap().to_string()).unwrap()));
-        for theurl in newurl {
-            // send the request with GET method
-            match requester.get(theurl) {
-                Ok(requester) => {
-                    requester
-                },
-                Err(e) => {
-                    println!("[ERR] {:?} : {:?}",url, e.kind().to_string());
-                    return;
-                }
-            };
-        }
+use std::{
+    fs::File, 
+    io::{
+        BufRead,
+        BufReader
     }
+};
 
 
 fn main() {
-
     let the_args = args();
     let mut pool = Pool::new(the_args.value_of("threads").unwrap().parse().unwrap());
     let urls = File::open(the_args.value_of("targets").unwrap().to_string()).expect("file not found!");
-    let mut _reader = BufReader::new(urls);
+    let _reader = BufReader::new(urls);
+    let _requester = Requester{
+        timeout:the_args.value_of("timeout").unwrap().parse().unwrap(),
+        proxy:the_args.value_of("proxy").unwrap().to_string(),
+        headers:extractheaders(the_args.value_of("headers").unwrap()),
+        }.build();
+    let params = convert_vec( BufReader::new(File::open(the_args.value_of("wordlist").unwrap()).expect("file not found ")) );
+    let bar = ProgressBar::new(params.len() as u64 * 4 );
     pool.scoped(|scope|{
-            for url in _reader.lines() {
-                scope.execute(move ||start(url.unwrap()));
+        for _url in _reader.lines() {
+            let urls = add_parameters(_url.unwrap(),the_args.value_of("host").unwrap(),params.clone());
+            for url in urls {
+                scope.execute(|| { 
+
+                        match _requester.get(url) {
+                            Ok(_done) => {},
+                            Err(_e) => {println!("[Err] {:?}",_e)}
+                        }
+                        bar.inc(1);
+
+                });
             }
+        }
         });
 
 }
