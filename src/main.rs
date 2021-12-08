@@ -24,14 +24,15 @@ fn main() {
         headers:extractheaders(the_args.value_of("headers").unwrap()),
         }.build();
     let params = convert_vec( BufReader::new(File::open(the_args.value_of("wordlist").unwrap()).expect("file not found ")) );
-    let bar = ProgressBar::new(params.len() as u64 * 4 );
+    let urls = convert_vec(_reader);
+    let bar = ProgressBar::new(params.len() as u64 + urls.len() as u64 * 4 );
     bar.set_style(ProgressStyle::default_bar()
         .template("[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
         .progress_chars("##-"));
     pool.scoped(|scope|{
-        for _url in _reader.lines() {
-            let urls = add_parameters(_url.unwrap(),the_args.value_of("host").unwrap(),params.clone());
-            for url in urls {
+        for _url in urls {
+            let _urls = add_parameters(_url,the_args.value_of("host").unwrap(),params.clone());
+            for url in _urls {
                 scope.execute(|| { 
 
                         match _requester.get(url) {
