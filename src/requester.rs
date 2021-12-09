@@ -9,7 +9,9 @@ use regex::Regex;
 use std::{
     fs::File,
     time::Duration,
-    io::{BufRead,BufReader},
+    io::{
+    BufRead,
+    BufReader},
 };
 
 pub struct Requester {
