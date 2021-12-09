@@ -59,14 +59,6 @@ pub fn convert_vec(wordlist: BufReader<File> ) -> Vec<String> {
 
 }
 
-pub fn convert_hash(wordlist: Vec<String>, target: String) -> HashMap<String,String> {
-    let mut scheme: HashMap<String,String> = HashMap::new();
-    for i in wordlist {
-        scheme.insert(i,target.clone());
-    }
-    return scheme;
-
-}
 
 pub fn add_parameters(url : String, payload: &str , wordlist: Vec<String>) -> Vec<String> {
     let mut scheme = vec![];
