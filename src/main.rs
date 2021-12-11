@@ -51,7 +51,7 @@ fn main() {
                             Err(_e) => {println!("[Err] {:?}",_e)}
                     }
 
-                    match _requester.post(url.split_once("?").unwrap().0,extract_params("http://google.com/",query(url.clone().as_str()))) {
+                    match _requester.post(url.split_once("?").unwrap().0,extract_params(url.split_once("?").unwrap().0,query(url.clone().as_str()))) {
                             Ok(_done) => {bar.inc(1)},
                             Err(_e) => {println!("[Err] {:?}",_e)}
                     }
