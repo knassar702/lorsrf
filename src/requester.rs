@@ -3,7 +3,6 @@ use isahc::{HttpClient, config::{
         VersionNegotiation,
         SslOption}, prelude::*};
 use url::Url;
-use serde_json::json;
 use std::collections::HashMap;
 use regex::Regex;
 use std::{
@@ -51,6 +50,10 @@ pub fn extractheaders(headers: &str ) -> HashMap<String, String> {
     return headers_found;
 }
 
+pub fn extract_params(url: &str,params: HashMap<String,String> ) -> String {
+    let data = Url::parse_with_params(url , params).unwrap();
+    return String::from(data.query().unwrap());
+}
 
 pub fn convert_vec(wordlist: BufReader<File> ) -> Vec<String> {
     let mut scheme = Vec::new();
@@ -77,8 +80,9 @@ pub fn add_parameters(url : String, payload: &str , wordlist: Vec<String>) -> Ve
 
 
 
-pub fn convert_json(url: &str) -> String {
+pub fn query(url: &str) -> HashMap<String,String> {
     let parsed_url = Url::parse(url).unwrap();
     let hash_query: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
-    return json!(hash_query).to_string();
+    return hash_query;
 }
+
