@@ -51,12 +51,23 @@ pub fn args() -> ArgMatches<'static> {
                                    .short("H")
                                    .takes_value(true)
                                    .default_value(""))
-
                               .arg(Arg::with_name("json")
-                                   .help("Send JSON parameters")
+                                   .help("Use JSON requests via POST method")
                                    .long("json")
                                    .short("j")
+                                   .takes_value(false)
                                    )
+                              .arg(Arg::with_name("form")
+                                      .help("Use x-www-form-urlencoded requests via POST method")
+                                      .long("form")
+                                      .short("f")
+                                      .takes_value(false)
+                                      )
+                             .arg(Arg::with_name("post-only")
+                                  .help("POST method only")
+                                  .long("post-only")
+                                  .takes_value(false)
+                                  )
                           .get_matches();
 
 }
