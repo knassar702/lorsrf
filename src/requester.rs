@@ -68,8 +68,12 @@ pub fn convert_vec(wordlist: BufReader<File> ) -> Vec<String> {
 pub fn add_parameters(url : String, payload: &str , wordlist: Vec<String>) -> Vec<String> {
     let mut scheme = vec![];
     let mut urls = Vec::new();
+    let url_path = Url::parse(url.as_str()).unwrap();
     for theurl in wordlist {
-        scheme.push((theurl, payload.to_string()));
+        scheme.push((
+                theurl.clone(), 
+                payload.replace("%PARAM%",theurl.clone().as_str()).replace("%PATH%",url_path.path())
+                     ));
         if scheme.len() == 10 {
             urls.push(Url::parse_with_params(url.as_str(),&scheme).unwrap().to_string());
             scheme.clear();

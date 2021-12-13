@@ -6,18 +6,15 @@ use serde_json::json;
 use scoped_threadpool::Pool;
 use std::{
     fs::File, 
-    io::{
-        BufRead,
-        BufReader
-    }
+    io::BufReader
 };
 
 
 fn main() {
     let the_args = args();
     let mut pool = Pool::new(the_args.value_of("threads").unwrap().parse().unwrap());
-    let urls = File::open(the_args.value_of("targets").unwrap().to_string()).expect("file not found!");
-    let _reader = BufReader::new(urls);
+    let urls_file = File::open(the_args.value_of("targets").unwrap().to_string()).expect("file not found!");
+    let _reader = BufReader::new(urls_file);
     let _requester = Requester {
         timeout:the_args.value_of("timeout").unwrap().parse().unwrap(),
         proxy:the_args.value_of("proxy").unwrap().to_string(),
@@ -25,7 +22,6 @@ fn main() {
         }.build();
     let params = convert_vec( BufReader::new(File::open(the_args.value_of("wordlist").unwrap()).expect("file not found ")) );
     let urls = convert_vec(_reader);
-
 
     pool.scoped(|scope|{
         for _url in urls {

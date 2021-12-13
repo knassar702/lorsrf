@@ -27,7 +27,6 @@ pub fn args() -> ArgMatches<'static> {
                                  .takes_value(true)
                                  .short("c")
                                  .long("call"))
-
                               .arg(Arg::with_name("proxy")
                                    .help("SendProxy")
                                    .takes_value(true)
