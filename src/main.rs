@@ -3,6 +3,7 @@ mod requester;
 use crate::requester::*;
 use crate::args::args;
 use serde_json::json;
+use indicatif::{ProgressBar, ProgressStyle};
 use scoped_threadpool::Pool;
 use std::{
     fs::File, 
@@ -22,6 +23,11 @@ fn main() {
         }.build();
     let params = convert_vec( BufReader::new(File::open(the_args.value_of("wordlist").unwrap()).expect("file not found ")) );
     let urls = convert_vec(_reader);
+    let _prog = params.len() as u64 / urls.len() as u64;
+    let _bar = ProgressBar::new(_prog / 14);
+    _bar.set_style(ProgressStyle::default_bar()
+        .template("[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
+        .progress_chars("##-"));
 
     pool.scoped(|scope|{
         for _url in urls {
@@ -54,7 +60,7 @@ fn main() {
                                 Err(_e) => {println!("[Err] {:?}",_e)}
                         }
                     }
-
+                    _bar.inc(1);
 
 
 
