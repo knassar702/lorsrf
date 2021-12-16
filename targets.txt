@@ -1,1 +1,1 @@
-http://google.com/
+http://testphp.vulnweb.com/showimage.php
