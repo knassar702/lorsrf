@@ -86,10 +86,14 @@ pub fn add_parameters(url : String, payload: &str , wordlist: Vec<String>) -> Ve
                  )
                 );
         }
-        urls.push(Url::parse_with_params(url.as_str()
-                                         .split_once("?")
-                                         .unwrap().0
-                                         ,&params).unwrap().to_string());
+        urls.push(Url::parse_with_params({
+            if url.as_str().split_once("?") == None {
+                 url.as_str()
+                 }
+            else {
+                url.as_str().split_once("?").unwrap().0
+            }
+                    },&params).unwrap().to_string());
 
         }
 
