@@ -30,8 +30,15 @@ fn main() {
     };
 
     let urls = convert_vec(_reader);
-    let _prog = params.len() as u64 / urls.len() as u64;
-    let _bar = ProgressBar::new(_prog / 14);
+    let _prog = {
+        if params.len() > 1 {
+            let just = params.len() as u64 / urls.len() as u64;
+            just / 14
+        } else {
+            urls.len() as u64
+        }
+    };
+    let _bar = ProgressBar::new(_prog);
     _bar.set_style(ProgressStyle::default_bar()
         .template("[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
         .progress_chars("##-"));
@@ -112,5 +119,5 @@ fn main() {
             }
         }
         });
-
 }
+
