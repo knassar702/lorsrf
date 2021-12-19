@@ -6,6 +6,7 @@ use url::Url;
 use std::collections::HashMap;
 use regex::Regex;
 use std::{
+    mem::drop,
     fs::File,
     time::Duration,
     io::{
@@ -65,15 +66,42 @@ pub fn convert_vec(wordlist: BufReader<File> ) -> Vec<String> {
 }
 
 
+
 pub fn add_parameters(url : String, payload: &str , wordlist: Vec<String>) -> Vec<String> {
     let mut scheme = vec![];
     let mut urls = Vec::new();
     let url_path = Url::parse(url.as_str()).unwrap();
+    if wordlist.len() == 1 {
+        // export all query parameters from urls
+        let mut params = vec![];
+        for (key, value) in url_path.query_pairs() {
+            drop(value);
+            params.push(
+                (key.clone(), 
+                 payload
+                    .replace("%PARAM%",key.clone().to_string().as_str())
+                    .replace("%PATH%",url_path.path())
+                    .replace("%QUERY%",url_path.query().unwrap_or("").to_string().as_str())
+                    .replace("%HOST%",url_path.host_str().unwrap_or("").to_string().as_str())
+                 )
+                );
+        }
+        urls.push(Url::parse_with_params(url.as_str()
+                                         .split_once("?")
+                                         .unwrap().0
+                                         ,&params).unwrap().to_string());
+
+        }
+
     for theurl in wordlist {
         scheme.push((
                 theurl.clone(), 
-                payload.replace("%PARAM%",theurl.clone().as_str()).replace("%PATH%",url_path.path())
-                     ));
+                payload
+                .replace("%PARAM%",theurl.clone().as_str())
+                .replace("%PATH%",url_path.path())
+                .replace("%QUERY%",url_path.query().unwrap_or("").to_string().as_str())
+                .replace("%HOST%",url_path.host_str().unwrap_or("").to_string().as_str())
+                ));
         if scheme.len() == 10 {
             urls.push(Url::parse_with_params(url.as_str(),&scheme).unwrap().to_string());
             scheme.clear();
@@ -81,8 +109,6 @@ pub fn add_parameters(url : String, payload: &str , wordlist: Vec<String>) -> Ve
     }
     return urls
 }
-
-
 
 pub fn query(url: &str) -> HashMap<String,String> {
     let parsed_url = Url::parse(url).unwrap();

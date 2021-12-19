@@ -37,7 +37,6 @@ pub fn args() -> ArgMatches<'static> {
                                    .help("Your Parameters Wordlist")
                                    .long("wordlist")
                                    .short("w")
-                                   .required(true)
                                    .takes_value(true))
                               .arg(Arg::with_name("threads")
                                    .help("Your Threads")

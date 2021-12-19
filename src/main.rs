@@ -21,7 +21,14 @@ fn main() {
         proxy:the_args.value_of("proxy").unwrap().to_string(),
         headers:extractheaders(the_args.value_of("headers").unwrap()),
         }.build();
-    let params = convert_vec( BufReader::new(File::open(the_args.value_of("wordlist").unwrap()).expect("file not found ")) );
+    let params: Vec<String> = { 
+        if the_args.is_present("wordlist") {
+            convert_vec( BufReader::new(File::open(the_args.value_of("wordlist").unwrap()).expect("file not found ")) )
+        } else {
+            vec![String::from("")]
+        }
+    };
+
     let urls = convert_vec(_reader);
     let _prog = params.len() as u64 / urls.len() as u64;
     let _bar = ProgressBar::new(_prog / 14);
@@ -32,13 +39,20 @@ fn main() {
     pool.scoped(|scope|{
         for _url in urls {
 
-            let _urls = add_parameters(_url.to_string(),the_args.value_of("host").unwrap(),params.clone());
+            let _urls = add_parameters(_url.clone().to_string(),the_args.value_of("host")
+                                       .unwrap(),
+                                       params.clone());
             for url in _urls {
                 scope.execute(|| { 
                     let url = url ;
                     if the_args.is_present("post-only") == false {
 
-                        match _requester.get(url.clone().as_str().replace("%25METHOD%25","get").as_str()) {
+                        match _requester.get(
+                            url.clone()
+                            .as_str()
+                            .replace("%25METHOD%25","get")
+                            .as_str()
+                            ) {
                                 Ok(_done) => {},
                                 Err(_e) => {}
                             }
@@ -46,8 +60,17 @@ fn main() {
                     }
 
                     if the_args.is_present("json") == true {
-                        match _requester.post(url.split_once("?").unwrap().0,
-                                            json!(query(url.clone().as_str().replace("%25METHOD%25","post").as_str())).to_string()
+                        match _requester.post(url
+                                              .split_once("?")
+                                              .unwrap().0
+                                              ,
+                                            json!(query(url.clone()
+                                                        .as_str().
+                                                        replace("%25METHOD%25","post")
+                                                        .as_str()
+                                                        )
+                                                  )
+                                            .to_string()
                                               ) {
                                 Ok(_done) => {},
                                 Err(_e) => {}
@@ -55,7 +78,18 @@ fn main() {
                     }
 
                     if the_args.is_present("form") == true {
-                        match _requester.post(url.split_once("?").unwrap().0,extract_params(url.split_once("?").unwrap().0,query(url.clone().as_str().replace("%25METHOD%25","post").as_str()))) {
+                        match _requester.post(url
+                                              .split_once("?")
+                                              .unwrap().0
+                                              ,
+                                              extract_params(url
+                                                             .split_once("?")
+                                                             .unwrap().0,query(url.clone().as_str()
+                                                                               .replace("%25METHOD%25","post")
+                                                                               .as_str()
+                                                                               )
+                                                             )
+                                              ) {
                                 Ok(_done) => {},
                                 Err(_e) => {}
                         }
