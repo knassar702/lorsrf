@@ -60,9 +60,14 @@ fn main() {
                     }
 
                     if the_args.is_present("json") == true {
-                        match _requester.post(url
-                                              .split_once("?")
-                                              .unwrap().0
+                        match _requester.post({
+                        if url.as_str().split_once("?") == None {
+                             url.as_str()
+                             }
+                        else {
+                            url.as_str().split_once("?").unwrap().0
+                        }
+                                }
                                               ,
                                             json!(query(url.clone()
                                                         .as_str().
@@ -78,10 +83,14 @@ fn main() {
                     }
 
                     if the_args.is_present("form") == true {
-                        match _requester.post(url
-                                              .split_once("?")
-                                              .unwrap().0
-                                              ,
+                        match _requester.post({
+                        if url.as_str().split_once("?") == None {
+                             url.as_str()
+                             }
+                        else {
+                            url.as_str().split_once("?").unwrap().0
+                        }
+                                }                                              ,
                                               extract_params(url
                                                              .split_once("?")
                                                              .unwrap().0,query(url.clone().as_str()

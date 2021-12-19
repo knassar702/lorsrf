@@ -72,7 +72,6 @@ pub fn add_parameters(url : String, payload: &str , wordlist: Vec<String>) -> Ve
     let mut urls = Vec::new();
     let url_path = Url::parse(url.as_str()).unwrap();
     if wordlist.len() == 1 {
-        // export all query parameters from urls
         let mut params = vec![];
         for (key, value) in url_path.query_pairs() {
             drop(value);
