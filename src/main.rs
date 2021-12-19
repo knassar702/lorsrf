@@ -40,7 +40,7 @@ fn main() {
 
                         match _requester.get(url.clone().as_str()) {
                                 Ok(_done) => {},
-                                Err(_e) => {println!("[Err] {:?}",_e)}
+                                Err(_e) => {}
                             }
 
                     }
@@ -50,14 +50,14 @@ fn main() {
                                             json!(query(url.clone().as_str())).to_string()
                                               ) {
                                 Ok(_done) => {},
-                                Err(_e) => {println!("[Err] {:?}",_e)}
+                                Err(_e) => {}
                         }
                     }
 
                     if the_args.is_present("form") == true {
                         match _requester.post(url.split_once("?").unwrap().0,extract_params(url.split_once("?").unwrap().0,query(url.clone().as_str()))) {
                                 Ok(_done) => {},
-                                Err(_e) => {println!("[Err] {:?}",_e)}
+                                Err(_e) => {}
                         }
                     }
                     _bar.inc(1);
