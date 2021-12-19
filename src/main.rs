@@ -38,7 +38,7 @@ fn main() {
                     let url = url ;
                     if the_args.is_present("post-only") == false {
 
-                        match _requester.get(url.clone().as_str()) {
+                        match _requester.get(url.clone().as_str().replace("%25METHOD%25","get").as_str()) {
                                 Ok(_done) => {},
                                 Err(_e) => {}
                             }
@@ -47,7 +47,7 @@ fn main() {
 
                     if the_args.is_present("json") == true {
                         match _requester.post(url.split_once("?").unwrap().0,
-                                            json!(query(url.clone().as_str())).to_string()
+                                            json!(query(url.clone().as_str().replace("%25METHOD%25","post").as_str())).to_string()
                                               ) {
                                 Ok(_done) => {},
                                 Err(_e) => {}
@@ -55,7 +55,7 @@ fn main() {
                     }
 
                     if the_args.is_present("form") == true {
-                        match _requester.post(url.split_once("?").unwrap().0,extract_params(url.split_once("?").unwrap().0,query(url.clone().as_str()))) {
+                        match _requester.post(url.split_once("?").unwrap().0,extract_params(url.split_once("?").unwrap().0,query(url.clone().as_str().replace("%25METHOD%25","post").as_str()))) {
                                 Ok(_done) => {},
                                 Err(_e) => {}
                         }
