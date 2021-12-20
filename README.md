@@ -1,41 +1,90 @@
-Lorsrf - SSRF Parameter bruteforce tool via POST & GET Request with JSON Support
+# LORSRF - 2.2
+![screenshot](.github/workflows/screen.png)
 
+***
 
-### Requirement
-* Rust
-* Cargo
-* Git
+lorsrf is just a web pentesting tool that i wrote for find the parameters that
+can be used to find SSRF or Out-of-band resource load by adding OAST host like
+Burp Collaborator to the parameter value, above of all, the request that will
+be received in Burp Collaborator will be a http request without any real
+informations about the target, i was thinking about how can i get vulnerable
+parameter/endpoint , Hence i made a simple feature is that allowed you to add
+some informations of the target in yout OAST host as a variables
 
-### install
-```bash
->>> apt install gcc pkg-config libssl-dev
->>> cargo install --git https://github.com/knassar702/lorsrf
  
+| Variable      | Description |
+| ----------- | ----------- |
+| %PARAM%      | the guessed parameter      |
+| %PATH%   |  the endpoint of your target domain |
+| %HOST%   | the scanning host
+| %QUERY% | the query of the url |
+| %METHOD% | Current METHOD |
+
+you can use these for include more informations in your OAST host
+
+```
+target: http://testphp.vulnweb.com/showimage.php
+payload: http://%HOST%.%PARAM%.testing.interactsh.com%PATH%
+output: http://testphp.vulnweb.com.file.testing.interactsh.com/showimage.php
 ```
 
-
-### Usage
+by default lorsrf use GET method if you want post method with form body or json you can add these falgs
 
 ```bash
-$ lorsrf --wordlist parameters.txt --call (YOUR BURP COLLABORATOR or interactsh.com host ) --urls your_targets_list.txt
+$ lorsrf --json --form
 ```
 
-#### example
+if you want post only add `--post-only` flag
+
+
+
+#### Examples
+
+```
+$ lorsrf --urls targets.txt -c "http://myhost.com" --wordlist params.txt
+```
+
+* json
+
+```
+
+
+$ lorsrf --urls targets.txt -c "http://myhost.com" --wordlist params.txt --json
+```
+
+* form
+
+```
+$ lorsrf --urls targets.txt -c "http://myhost.com" --wordlist params.txt --form
+```
+
+
+parameter scanner without geussing
 
 ```bash
-$ waybackurls testphp.vulnweb.com > targets.txt
-$ lorsrf --wordlist parameters.txt --call c64fsyz2vtc0000341c0gdn8h9oyyyyyb.interactsh.com --urls target.txt
+$ waybackurls http://testphp.vulnweb.com > urls.txt
+$ lorsrf --urls urls.txt -c "http://myhost.com" --wordlist params.txt
 ```
+
+
+* Video: [demo](https://twitter.com/knassar702/status/1472566701027901450)
 
 more options
 
 ```bash
+Lorsrf 2.0
+Khaled Nassar <knassar702@gmail.com>
+SSRF Parameter BruteForce Tool
+
 USAGE:
-    lorsrf [OPTIONS] --call <host> --urls <targets> --wordlist <wordlist>
+    lorsrf [FLAGS] [OPTIONS] --call <host> --urls <targets>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+    -f, --form         Use x-www-form-urlencoded requests via POST method
+    -h, --help         Prints help information
+    -j, --json         Use JSON requests via POST method
+        --post-only    POST method only
+    -V, --version      Prints version information
 
 OPTIONS:
     -H, --headers <headers>      Your Headers [default: ]
