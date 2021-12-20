@@ -37,6 +37,13 @@ $ lorsrf --json --form
 if you want post only add `--post-only` flag
 
 
+### Install
+1. install rust from https://www.rust-lang.org/learn/get-started
+2. run these commmands
+```bash
+>>> apt install gcc pkg-config libssl-dev
+>>> cargo install --git https://github.com/knassar702/lorsrf
+```
 
 #### Examples
 
