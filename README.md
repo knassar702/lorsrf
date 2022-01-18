@@ -3,14 +3,8 @@
 
 ***
 
-lorsrf is just a web pentesting tool that i wrote for find the parameters that
-can be used to find SSRF or Out-of-band resource load by adding OAST host like
-Burp Collaborator to the parameter value, above of all, the request that will
-be received in Burp Collaborator will be a http request without any real
-informations about the target, i was thinking about how can i get vulnerable
-parameter/endpoint , Hence i made a simple feature is that allowed you to add
-some informations of the target in yout OAST host as a variables
-
+lorsrf is just a web pen-testing tool that I wrote to find the parameters that can be used to find SSRF or Out-of-band resource load by adding OAST host like Burp Collaborator to the parameter value, above of all, the request that will be received in Burp Collaborator will be an HTTP request without any real pieces of information about the target, i was thinking about how can i get vulnerable parameter/endpoint , Hence i made a simple feature is that allowed you to add some pieces of information of the target in your OAST host as a variables
+	
  
 | Variable      | Description |
 | ----------- | ----------- |
