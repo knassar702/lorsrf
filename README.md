@@ -32,7 +32,7 @@ if you want post only add `--post-only` flag
 
 
 ### Install
-1. install rust from https://www.rust-lang.org/learn/get-started
+1. install the last version of rust from https://www.rust-lang.org/tools/install
 2. run these commmands
 ```bash
 >>> apt install gcc pkg-config libssl-dev
