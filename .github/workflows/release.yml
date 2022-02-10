@@ -1,4 +1,3 @@
-# .github/workflows/release.yml
 
 on:
   release:
@@ -6,7 +5,7 @@ on:
 
 jobs:
   release:
-    name: release ${{ matrix.target }}
+    name: release ${{ matrix.target }}  (with non-required env)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -14,15 +13,28 @@ jobs:
         include:
           - target: x86_64-pc-windows-gnu
             archive: zip
-          - target: x86_64-unknown-linux-musl
-            archive: tar.gz tar.xz
-          - target: x86_64-apple-darwin
-            archive: zip
+          - target: x86_64-linux-musl
+            archive: tar.gz
     steps:
       - uses: actions/checkout@master
       - name: Compile and release
-        uses: rust-build/rust-build.action@latest
+        uses: rust-build/rust-build.action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GIT }}
           RUSTTARGET: ${{ matrix.target }}
+          SRC_DIR: "."
           ARCHIVE_TYPES: ${{ matrix.archive }}
+  release_without_not_required:
+    name: release ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        target: [x86_64-unknown-linux-musl]
+    steps:
+      - uses: actions/checkout@master
+      - name: Compile and release
+        uses: rust-build/rust-build.action@master
+        env:
+        GITHUB_TOKEN: ${{ secrets.GIT }}
+          RUSTTARGET: ${{ matrix.target }}
