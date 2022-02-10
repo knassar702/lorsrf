@@ -1,29 +1,28 @@
-on:
-  push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+# .github/workflows/release.yml
 
-name: Create Release
+on:
+  release:
+    types: [created]
 
 jobs:
-  build:
-    name: Create Release
+  release:
+    name: release ${{ matrix.target }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-pc-windows-gnu
+            archive: zip
+          - target: x86_64-unknown-linux-musl
+            archive: tar.gz tar.xz
+          - target: x86_64-apple-darwin
+            archive: zip
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - uses: actions/checkout@master
+      - name: Compile and release
+        uses: rust-build/rust-build.action@latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: false
-          prerelease: false
+          GITHUB_TOKEN: ${{ secrets.GIT }}
+          RUSTTARGET: ${{ matrix.target }}
+          ARCHIVE_TYPES: ${{ matrix.archive }}
