@@ -19,7 +19,7 @@ jobs:
       - name: Compile and release
         uses: rust-build/rust-build.action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUSTTARGET: ${{ matrix.target }}
           SRC_DIR: "."
           ARCHIVE_TYPES: ${{ matrix.archive }}
