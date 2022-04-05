@@ -4,6 +4,7 @@ on:
 
 jobs:
   release:
+    environment: GIT_TOKEN
     name: release ${{ matrix.target }}  (with non-required env)
     runs-on: ${{ matrix.os }}
     strategy:
