@@ -36,7 +36,7 @@ jobs:
       - name: Compile and release
         uses: rust-build/rust-build.action@master
         env:
-          GITHUB_TOKEN: ${{ env.GIT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
           RUSTTARGET: ${{ matrix.target }}
           SRC_DIR: "."
           ARCHIVE_TYPES: ${{ matrix.archive }}
@@ -52,5 +52,5 @@ jobs:
       - name: Compile and release
         uses: rust-build/rust-build.action@master
         env:
-          GITHUB_TOKEN: ${{ env.GIT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
           RUSTTARGET: ${{ matrix.target }}
