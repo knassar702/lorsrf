@@ -1,55 +1,35 @@
+name: Release
 
-name: release
 on:
   push:
     tags:
-      - 'v*'
+      - v[0-9]+.*
 
 jobs:
-  release:
-    name: Create Release
+  create-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@master
-      - name: Create Release
-        uses: actions/create-release@latest
+      - uses: actions/checkout@v3
+      - uses: taiki-e/create-gh-release-action@v1
         env:
+          # (required)
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
 
-  publish:
-    name: publish ${{ matrix.name }}
-    needs:
-      - release
-    strategy:
-      fail-fast: true
-      matrix:
-        include:
-          - target: x86_64-pc-windows-gnu
-            suffix: windows-x86_64
-            archive: zip
-          - target: x86_64-unknown-linux-gun
-            suffix: linux-x86_64
-            archive: tar.xz
-          - target: x86_64-apple-darwin
-            suffix: darwin-x86_64
-            archive: tar.gz
+  upload-assets:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone test repository
-        uses: actions/checkout@v2
-      - uses: xhaiker/rust-release.action@v1.0.0
-        name: build ${{ matrix.name }}
+      - uses: actions/checkout@v3
+      - uses: taiki-e/upload-rust-binary-action@v1
         with:
-          release: ${{ github.ref_name }}
-          rust_target: ${{ matrix.target }}
-          archive_suffix: ${{ matrix.suffix }}
-          archive_types: ${{ matrix.archive }}
-          extra_files: "README.md README_zh.md LICENSE"
+          bin: ...
+          # (optional) Archive name (non-extension portion of filename) to be uploaded.
+          # [default value: $bin-$target]
+          # [possible values: the following variables and any string]
+          #   variables:
+          #     - $bin - Binary name (non-extension portion of filename).
+          #     - $target - Target triple.
+          #     - $tag - Tag of this release.
+          archive: $bin-$tag-$target
         env:
+          # (required)
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
