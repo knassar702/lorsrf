@@ -10,27 +10,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
-            env:
-                TARGET: x86_64-apple-darwin
-                COMPILER: clang
-                LINKER: clang
-
-          - os: ubuntu-latest
-            env:
-                TARGET: armv7-unknown-linux-musleabihf
-                COMPILER: arm-linux-gnueabihf-gcc-5
-                LINKER: gcc-5-arm-linux-gnueabihf
-
           - os: ubuntu-latest
             env:
                 TARGET: x86_64-unknown-linux-musl
                 COMPILER: gcc
                 LINKER: gcc
-          - target: x86_64-pc-windows-gnu
-            archive: zip
+          - os: ubuntu-latest
+            env:
+                TARGET: x86_64-unknown-linux-gnu
+                COMPILER: gcc
+                LINKER: gcc
+                
           - target: x86_64-linux-musl
             archive: tar.gz
+
+            
     steps:
       - uses: actions/checkout@master
       - name: Compile and release
