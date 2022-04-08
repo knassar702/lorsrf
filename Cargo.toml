@@ -1,3 +1,10 @@
+[profile.release]
+opt-level = "z"  # Optimize for size.
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
 [package]
 name = "lorsrf"
 repository = "https://github.com/knassar702/lorsrf"
