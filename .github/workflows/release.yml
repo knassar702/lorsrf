@@ -1,50 +1,54 @@
+name: release
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   release:
-    name: release ${{ matrix.target }}  (with non-required env)
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            env:
-                TARGET: x86_64-unknown-linux-musl
-                COMPILER: gcc
-                LINKER: gcc
-          - os: ubuntu-latest
-            env:
-                TARGET: x86_64-unknown-linux-gnu
-                COMPILER: gcc
-                LINKER: gcc
-                
-          - target: x86_64-linux-musl
-            archive: tar.gz
-
-            
+    name: Create Release
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@master
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Create Release
+        uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-          RUSTTARGET: ${{ matrix.target }}
-          SRC_DIR: "."
-          ARCHIVE_TYPES: ${{ matrix.archive }}
-  release_without_not_required:
-    name: release ${{ matrix.target }}
-    runs-on: ubuntu-latest
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  publish:
+    name: publish ${{ matrix.name }}
+    needs:
+      - release
     strategy:
       fail-fast: true
       matrix:
-        target: [x86_64-unknown-linux-musl]
+        include:
+          - target: x86_64-pc-windows-gnu
+            suffix: windows-x86_64
+            archive: zip
+          - target: x86_64-unknown-linux-gun
+            suffix: linux-x86_64
+            archive: tar.xz
+          - target: x86_64-apple-darwin
+            suffix: darwin-x86_64
+            archive: tar.gz
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Compile and release
-        uses: rust-build/rust-build.action@master
+      - name: Clone test repository
+        uses: actions/checkout@v2
+      - uses: xhaiker/rust-release.action@v1.0.0
+        name: build ${{ matrix.name }}
+        with:
+          release: ${{ github.ref_name }}
+          rust_target: ${{ matrix.target }}
+          archive_suffix: ${{ matrix.suffix }}
+          archive_types: ${{ matrix.archive }}
+          extra_files: "README.md README_zh.md LICENSE"
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-          RUSTTARGET: ${{ matrix.target }}
