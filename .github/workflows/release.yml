@@ -1,35 +1,49 @@
-name: Release
+name: Publish
 
 on:
   push:
     tags:
-      - v[0-9]+.*
+      - '*'
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: taiki-e/create-gh-release-action@v1
-        env:
-          # (required)
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+  publish:
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        name: [
+            linux,
+            windows,
+            macos
+        ]
 
-  upload-assets:
-    runs-on: ubuntu-latest
+        include:
+          - name: linux
+            os: ubuntu-latest
+            artifact_name: target/release/lorsrf
+            asset_name: lorsrf-linux
+          - name: windows
+            os: windows-latest
+            artifact_name: target/release/lorsrf.exe
+            asset_name: lorsrf-windows
+          - name: macos
+            os: macos-latest
+            artifact_name: target/release/lorsrf
+            asset_name: lorsrf-macos
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: taiki-e/upload-rust-binary-action@v1
-        with:
-          bin: ...
-          # (optional) Archive name (non-extension portion of filename) to be uploaded.
-          # [default value: $bin-$target]
-          # [possible values: the following variables and any string]
-          #   variables:
-          #     - $bin - Binary name (non-extension portion of filename).
-          #     - $target - Target triple.
-          #     - $tag - Tag of this release.
-          archive: $bin-$tag-$target
-        env:
-          # (required)
-          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+    - uses: actions/checkout@v1
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+
+    - name: Build
+      run: cargo build --release --locked
+
+    - name: Upload binaries to release
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.asset_name }}
+        path: ${{ matrix.artifact_name }}
