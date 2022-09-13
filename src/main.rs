@@ -3,13 +3,17 @@ mod requester;
 use crate::args::args;
 use crate::requester::*;
 use indicatif::{ProgressBar, ProgressStyle};
-use scoped_threadpool::Pool;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde_json::json;
 use std::{fs::File, io::BufReader};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let the_args = args();
-    let mut pool = Pool::new(the_args.value_of("threads").unwrap().parse().unwrap());
+    let threader = rayon::ThreadPoolBuilder::new()
+        .num_threads(the_args.value_of("threads").unwrap().parse().unwrap())
+        .build()
+        .unwrap();
     let urls_file =
         File::open(the_args.value_of("targets").unwrap().to_string()).expect("file not found!");
     let _reader = BufReader::new(urls_file);
@@ -45,73 +49,71 @@ fn main() {
             .progress_chars("##-"),
     );
 
-    pool.scoped(|scope| {
-        for _url in urls {
+    threader.install(|| {
+        urls.par_iter().for_each(|_url| {
             let _urls = add_parameters(
                 _url.clone().to_string(),
                 the_args.value_of("host").unwrap(),
                 params.clone(),
             );
-            for url in _urls {
-                scope.execute(|| {
-                    let url = url;
-                    if the_args.is_present("post-only") == false {
-                        match _requester
-                            .get(url.clone().as_str().replace("%25METHOD%25", "get").as_str())
-                        {
-                            Ok(_done) => {}
-                            Err(_e) => {}
-                        }
+            _urls.par_iter().for_each(|url| {
+                let url = url;
+                if the_args.is_present("post-only") == false {
+                    match _requester
+                        .get(url.clone().as_str().replace("%25METHOD%25", "get").as_str())
+                    {
+                        Ok(_done) => {}
+                        Err(_e) => {}
                     }
+                }
 
-                    if the_args.is_present("json") == true {
-                        match _requester.post(
-                            {
-                                if url.as_str().split_once("?") == None {
-                                    url.as_str()
-                                } else {
-                                    url.as_str().split_once("?").unwrap().0
-                                }
-                            },
-                            json!(query(
+                if the_args.is_present("json") == true {
+                    match _requester.post(
+                        {
+                            if url.as_str().split_once("?") == None {
+                                url.as_str()
+                            } else {
+                                url.as_str().split_once("?").unwrap().0
+                            }
+                        },
+                        json!(query(
+                            url.clone()
+                                .as_str()
+                                .replace("%25METHOD%25", "post")
+                                .as_str()
+                        ))
+                        .to_string(),
+                    ) {
+                        Ok(_done) => {}
+                        Err(_e) => {}
+                    }
+                }
+
+                if the_args.is_present("form") == true {
+                    match _requester.post(
+                        {
+                            if url.as_str().split_once("?") == None {
+                                url.as_str()
+                            } else {
+                                url.as_str().split_once("?").unwrap().0
+                            }
+                        },
+                        extract_params(
+                            url.split_once("?").unwrap().0,
+                            query(
                                 url.clone()
                                     .as_str()
                                     .replace("%25METHOD%25", "post")
-                                    .as_str()
-                            ))
-                            .to_string(),
-                        ) {
-                            Ok(_done) => {}
-                            Err(_e) => {}
-                        }
-                    }
-
-                    if the_args.is_present("form") == true {
-                        match _requester.post(
-                            {
-                                if url.as_str().split_once("?") == None {
-                                    url.as_str()
-                                } else {
-                                    url.as_str().split_once("?").unwrap().0
-                                }
-                            },
-                            extract_params(
-                                url.split_once("?").unwrap().0,
-                                query(
-                                    url.clone()
-                                        .as_str()
-                                        .replace("%25METHOD%25", "post")
-                                        .as_str(),
-                                ),
+                                    .as_str(),
                             ),
-                        ) {
-                            Ok(_done) => {}
-                            Err(_e) => {}
-                        }
+                        ),
+                    ) {
+                        Ok(_done) => {}
+                        Err(_e) => {}
                     }
-                    _bar.inc(1);
-                });
-            }
-        }
+                }
+            });
+        });
+        _bar.inc(1);
     });
 }
