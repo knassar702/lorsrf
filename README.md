@@ -1,4 +1,4 @@
-# LORSRF - 2.2
+# LORSRF - 2.1
 ![screenshot](.github/workflows/screen.png)
 
 ***
