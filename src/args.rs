@@ -4,7 +4,7 @@ use clap::{App, Arg, ArgMatches};
 pub fn args() -> ArgMatches<'static> {
     // Create the CLI app
     return App::new("Lorsrf")
-        .version("2.0")
+        .version("2.1")
         .author("Khaled Nassar <knassar702@gmail.com>")
         .about("SSRF Parameter BruteForce Tool")
         .arg(
