@@ -38,6 +38,7 @@ if you want post only add `--post-only` flag
 >>> apt install gcc pkg-config libssl-dev
 >>> cargo install --git https://github.com/knassar702/lorsrf
 ```
+or download it from the release page 
 
 #### Examples
 
