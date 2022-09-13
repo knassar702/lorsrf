@@ -16,8 +16,8 @@ async fn main() {
         .unwrap();
     let urls_file =
         File::open(the_args.value_of("targets").unwrap().to_string()).expect("file not found!");
-    let _reader = BufReader::new(urls_file);
-    let _requester = Requester {
+    let reader = BufReader::new(urls_file);
+    let requester = Requester {
         timeout: the_args.value_of("timeout").unwrap().parse().unwrap(),
         proxy: the_args.value_of("proxy").unwrap().to_string(),
         headers: extractheaders(the_args.value_of("headers").unwrap()),
@@ -33,33 +33,24 @@ async fn main() {
         }
     };
 
-    let urls = convert_vec(_reader);
-    let _prog = {
-        if params.len() > 1 {
-            let just = params.len() as u64 / urls.len() as u64;
-            just / 14
-        } else {
-            urls.len() as u64
-        }
-    };
-    let _bar = ProgressBar::new(_prog);
-    _bar.set_style(
+    let urls = convert_vec(reader);
+    let bar = ProgressBar::new(urls.len() as u64);
+    bar.set_style(
         ProgressStyle::default_bar()
             .template("[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
             .progress_chars("##-"),
     );
-
-    threader.install(|| {
-        urls.par_iter().for_each(|_url| {
-            let _urls = add_parameters(
-                _url.clone().to_string(),
+    threader.install(move || {
+        urls.par_iter().for_each(|url| {
+            let urls = add_parameters(
+                url.clone().to_string(),
                 the_args.value_of("host").unwrap(),
                 params.clone(),
             );
-            _urls.par_iter().for_each(|url| {
+            urls.par_iter().for_each(|url| {
                 let url = url;
                 if the_args.is_present("post-only") == false {
-                    match _requester
+                    match requester
                         .get(url.clone().as_str().replace("%25METHOD%25", "get").as_str())
                     {
                         Ok(_done) => {}
@@ -68,7 +59,7 @@ async fn main() {
                 }
 
                 if the_args.is_present("json") == true {
-                    match _requester.post(
+                    match requester.post(
                         {
                             if url.as_str().split_once("?") == None {
                                 url.as_str()
@@ -90,7 +81,7 @@ async fn main() {
                 }
 
                 if the_args.is_present("form") == true {
-                    match _requester.post(
+                    match requester.post(
                         {
                             if url.as_str().split_once("?") == None {
                                 url.as_str()
@@ -112,8 +103,9 @@ async fn main() {
                         Err(_e) => {}
                     }
                 }
+            bar.inc(1);
+
             });
         });
-        _bar.inc(1);
     });
 }
