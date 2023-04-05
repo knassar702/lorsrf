@@ -2,8 +2,13 @@
 ![screenshot](.github/workflows/screen.png)
 
 ***
+Lorsrf is a powerful web penetration testing tool designed to identify parameters that can be exploited for SSRF or Out-of-band resource load attacks. By adding an OAST host like Burp Collaborator to the parameter value, Lorsrf can generate an HTTP request that is received in Burp Collaborator, without any actual information about the target.
 
-lorsrf is just a web pen-testing tool that I wrote to find the parameters that can be used to find SSRF or Out-of-band resource load by adding OAST host like Burp Collaborator to the parameter value, above of all, the request that will be received in Burp Collaborator will be an HTTP request without any real pieces of information about the target, i was thinking about how can i get vulnerable parameter/endpoint , Hence i made a simple feature is that allowed you to add some pieces of information of the target in your OAST host as a variables
+To address this issue, Lorsrf includes a feature that allows you to add specific pieces of target information as variables in your OAST host. This allows you to more easily identify vulnerable parameters and endpoints, ultimately making it easier to secure your web applications.
+
+In addition to the above, Lorsrf also allows you to include additional information in your OAST host using special variables. For example, you can include the endpoint of your target domain, the query of the URL, the current request method, and more.
+
+Overall, Lorsrf is a powerful tool that can be customized to meet your specific web pen-testing needs. Whether you're looking to identify and fix vulnerabilities in your own web applications or assess the security of third-party web apps, Lorsrf is a valuable addition to any pen-testing toolkit.
 	
  
 | Variable      | Description |
