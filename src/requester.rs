@@ -1,72 +1,65 @@
-use isahc::{
-    config::{RedirectPolicy, SslOption, VersionNegotiation},
-    prelude::*,
-    HttpClient,
-};
-use regex::Regex;
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use reqwest::{Client, Proxy};
 use std::collections::HashMap;
+use std::time::Duration;
 use std::{
     fs::File,
     io::{BufRead, BufReader},
-    mem::drop,
-    time::Duration,
 };
 use url::Url;
 
+#[derive(Debug)]
 pub struct Requester {
     pub timeout: u64,
-    pub proxy: String,
-    pub headers: HashMap<String, String>,
+    pub proxy: Option<String>,
+    pub headers: HeaderMap<HeaderValue>,
 }
 
 impl Requester {
-    pub fn build(&self) -> HttpClient {
-        let mut client = HttpClient::builder()
-            .version_negotiation(VersionNegotiation::http11())
-            .redirect_policy(RedirectPolicy::None)
+    pub async fn build(&self) -> Client {
+        let client_builder = Client::builder()
             .timeout(Duration::from_secs(self.timeout))
-            .ssl_options(
-                SslOption::DANGER_ACCEPT_INVALID_CERTS | SslOption::DANGER_ACCEPT_REVOKED_CERTS,
-            );
+            .danger_accept_invalid_certs(true);
 
-        if self.proxy != "" {
-            client = client.proxy(Some(self.proxy.parse().unwrap()));
-        }
+        let client_builder = if let Some(ref proxy_url) = self.proxy {
+            client_builder.proxy(Proxy::all(proxy_url).unwrap())
+        } else {
+            client_builder
+        };
 
-        if self.headers.len() > 0 {
-            client = client.default_headers(self.headers.clone());
-        }
+        let client_builder = if !self.headers.is_empty() {
+            client_builder.default_headers(self.headers.clone())
+        } else {
+            client_builder
+        };
 
-        return client.build().unwrap();
+        client_builder.build().unwrap()
     }
 }
 
-pub fn extractheaders(headers: &str) -> HashMap<String, String> {
-    let headers_finder = Regex::new(r"(.*):\s(.*)").unwrap();
-    let mut headers_found = HashMap::new();
-    for cap in headers_finder.captures_iter(str::replace(headers, "\\n", "\n").as_str()) {
-        headers_found.insert(cap[1].to_string(), cap[2].to_string());
-    }
-    return headers_found;
-}
+pub fn extract_headers(headers: &str) -> Result<HeaderMap, Box<dyn std::error::Error>> {
+    let mut header_map = HeaderMap::new();
 
-pub fn extract_params(url: &str, params: HashMap<String, String>) -> String {
-    let data = Url::parse_with_params(url, params).unwrap();
-    return String::from(data.query().unwrap());
+    for line in headers.lines() {
+        if let Some((name, value)) = line.split_once(':') {
+            let header_name = HeaderName::from_bytes(name.trim().as_bytes())?;
+            let header_value = HeaderValue::from_str(value.trim())?;
+            header_map.insert(header_name, header_value);
+        }
+    }
+
+    Ok(header_map)
 }
 
 pub fn convert_vec(wordlist: BufReader<File>) -> Vec<String> {
-    let mut scheme = Vec::new();
-    for data in wordlist.lines() {
-        scheme.push(data.unwrap().to_string());
-    }
-    return scheme;
+    wordlist.lines().filter_map(|line| line.ok()).collect()
 }
 
 pub fn add_parameters(url: String, payload: &str, wordlist: Vec<String>) -> Vec<String> {
     let mut scheme = vec![];
     let mut urls = Vec::new();
-    let url_path = Url::parse(url.as_str()).unwrap();
+    let url_path = Url::parse(&url).unwrap();
+
     if wordlist.len() == 1 {
         let mut params = vec![];
         for (key, value) in url_path.query_pairs() {
@@ -74,63 +67,42 @@ pub fn add_parameters(url: String, payload: &str, wordlist: Vec<String>) -> Vec<
             params.push((
                 key.clone(),
                 payload
-                    .replace("%PARAM%", key.clone().to_string().as_str())
+                    .replace("%PARAM%", &key)
                     .replace("%PATH%", url_path.path())
-                    .replace(
-                        "%QUERY%",
-                        url_path.query().unwrap_or("").to_string().as_str(),
-                    )
-                    .replace(
-                        "%HOST%",
-                        url_path.host_str().unwrap_or("").to_string().as_str(),
-                    ),
+                    .replace("%QUERY%", url_path.query().unwrap_or(""))
+                    .replace("%HOST%", url_path.host_str().unwrap_or("")),
             ));
         }
         urls.push(
-            Url::parse_with_params(
-                {
-                    if url.as_str().split_once("?") == None {
-                        url.as_str()
-                    } else {
-                        url.as_str().split_once("?").unwrap().0
-                    }
-                },
-                &params,
-            )
-            .unwrap()
-            .to_string(),
+            Url::parse_with_params(url.split_once('?').unwrap_or((&url, "")).0, &params)
+                .unwrap()
+                .to_string(),
         );
-    }
+    } else {
+        for theurl in wordlist {
+            scheme.push((
+                theurl.clone(),
+                payload
+                    .replace("%PARAM%", &theurl)
+                    .replace("%PATH%", url_path.path())
+                    .replace("%QUERY%", url_path.query().unwrap_or(""))
+                    .replace("%HOST%", url_path.host_str().unwrap_or("")),
+            ));
 
-    for theurl in wordlist {
-        scheme.push((
-            theurl.clone(),
-            payload
-                .replace("%PARAM%", theurl.clone().as_str())
-                .replace("%PATH%", url_path.path())
-                .replace(
-                    "%QUERY%",
-                    url_path.query().unwrap_or("").to_string().as_str(),
-                )
-                .replace(
-                    "%HOST%",
-                    url_path.host_str().unwrap_or("").to_string().as_str(),
-                ),
-        ));
-        if scheme.len() == 10 {
-            urls.push(
-                Url::parse_with_params(url.as_str(), &scheme)
-                    .unwrap()
-                    .to_string(),
-            );
-            scheme.clear();
+            if scheme.len() == 10 {
+                urls.push(Url::parse_with_params(&url, &scheme).unwrap().to_string());
+                scheme.clear();
+            }
         }
     }
-    return urls;
+
+    urls
 }
 
 pub fn query(url: &str) -> HashMap<String, String> {
-    let parsed_url = Url::parse(url).unwrap();
-    let hash_query: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
-    return hash_query;
+    Url::parse(url)
+        .unwrap()
+        .query_pairs()
+        .into_owned()
+        .collect()
 }
