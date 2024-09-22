@@ -6,7 +6,7 @@ use std::{
     fs::File,
     io::{BufRead, BufReader},
 };
-use url::Url;
+use reqwest::Url;
 
 #[derive(Debug)]
 pub struct Requester {
